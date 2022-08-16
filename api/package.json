@@ -1,10 +1,10 @@
 {
-  "name": "server",
+  "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "api.js",
   "scripts": {
-    "start": "npx nodemon server.js"
+    "start": "npx nodemon api.js"
   },
   "dependencies": {
     "body-parser": "^1.20.0",

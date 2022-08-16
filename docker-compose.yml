@@ -4,22 +4,22 @@ services:
 
   nginx:
     depends_on:
-      - server
+      - api
       - client
     restart: always
     build:
       dockerfile: Dockerfile
       context: ./nginx
     ports:
-      - "3050:80"
+      - "8080:8080"
 
-  server:
+  api:
     build:
       dockerfile: Dockerfile
-      context: "./server"
+      context: "./api"
     volumes:
       - /app/node_modules
-      - ./server:/app
+      - ./api:/app
 
   client:
     stdin_open: true

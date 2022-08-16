@@ -19,6 +19,12 @@ const PORT = 1998;
 const HOST = '0.0.0.0';
 
 
+router.get('/saludo', (req, res) => {
+  const { nombre } = req.body;
+  res.send(`Hola ${nombre} desde el servidor`);
+});
+
+
 router.post('/login', (req, res) => {
   
 //   const { user, password } = req.body;
