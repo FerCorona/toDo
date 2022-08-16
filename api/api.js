@@ -1,13 +1,16 @@
 const express = require('express');
-const bodyParser = require("body-parser");
+const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
-const router = express.Router()
+const router = express.Router();
+const { Pool } = require('pg');
 
 const service = require('./services');
 const middleware = require('./middleware');
 const config = require('./config');
 
+
+const keys = require('./keys');
 
 app.use(cors())
 app.use(bodyParser.json());
@@ -19,8 +22,31 @@ const PORT = 1998;
 const HOST = '0.0.0.0';
 
 
+// Postgres client setup
+ const pgClient = new Pool({
+   user: keys.pgUser,
+   host: keys.pgHost,
+   database: keys.pgDatabase,
+   password: keys.pgPassword,
+   port: keys.pgPort
+ });
+
+
 router.get('/saludo', (req, res) => {
   const { nombre } = req.body;
+  // pgClient.on('connect', client => {
+  //   client
+  //     .query('CREATE TABLE IF NOT EXISTS toDo (number INT)')
+  //     .catch(err => console.log('PG ERROR', err));
+  // });
+ 
+  // pgClient.on('error', (err, client) => {
+  //   console.log(err)
+  // });
+  pgClient
+  .query('SELECT NOW() as now')
+  .then(res => console.log(res.rows[0]))
+  .catch(e => console.error(e.stack))
   res.send(`Hola ${nombre} desde el servidor`);
 });
 
