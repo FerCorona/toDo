@@ -5,14 +5,14 @@ require('antd/dist/antd.css');
 import { getSaludo } from '../helpers/api-helpers';
 
 const Container = ({ }) => {
-  const [ message, setMessage ] = useState(null);
+  const [ notas, setNotas ] = useState([]);
   useEffect(() => {
-    getSaludo({ nombre: 'Fernando '})
-    .then(data => setMessage(data.data))
+    getSaludo()
+    .then(data => setNotas(data.data))
     .catch(err => console.log(err));
   });
   return(
-    <div>App {message}</div>
+    <div>App {notas.map(note => note.nombre_nota)}</div>
   );
 };
 

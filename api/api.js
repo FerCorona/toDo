@@ -44,10 +44,9 @@ router.get('/saludo', (req, res) => {
   //   console.log(err)
   // });
   pgClient
-  .query('SELECT NOW() as now')
-  .then(res => console.log(res.rows[0]))
-  .catch(e => console.error(e.stack))
-  res.send(`Hola ${nombre} desde el servidor`);
+  .query('SELECT id_nota, nombre_nota, desc_nota, id_estado_nota, id_lista, fecha FROM public.nota')
+  .then(data => res.send(data.rows))
+  .catch(e => res.send(e.stack))
 });
 
 

@@ -6,12 +6,24 @@ services:
     depends_on:
       - api
       - client
+      - postgres
     restart: always
     build:
       dockerfile: Dockerfile
       context: ./nginx
     ports:
       - "8080:8080"
+    
+  postgres:
+    image: "postgres:latest"
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   api:
     build:
@@ -20,6 +32,13 @@ services:
     volumes:
       - /app/node_modules
       - ./api:/app
+    environment:
+      - PGUSER=postgres
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGPASSWORD=postgres
+      - PGPORT=5432
+
 
   client:
     stdin_open: true
