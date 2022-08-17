@@ -21,8 +21,6 @@ app.use(router);
 const PORT = 1998;
 const HOST = '0.0.0.0';
 
-
-// Postgres client setup
  const pgClient = new Pool({
    user: keys.pgUser,
    host: keys.pgHost,
@@ -33,77 +31,116 @@ const HOST = '0.0.0.0';
 
 
 router.get('/saludo', (req, res) => {
-  const { nombre } = req.body;
-  // pgClient.on('connect', client => {
-  //   client
-  //     .query('CREATE TABLE IF NOT EXISTS toDo (number INT)')
-  //     .catch(err => console.log('PG ERROR', err));
-  // });
- 
-  // pgClient.on('error', (err, client) => {
-  //   console.log(err)
-  // });
   pgClient
   .query('SELECT id_nota, nombre_nota, desc_nota, id_estado_nota, id_lista, fecha FROM public.nota')
   .then(data => res.send(data.rows))
   .catch(e => res.send(e.stack))
 });
 
-
-router.post('/login', (req, res) => {
-  
-//   const { user, password } = req.body;
-//   client.query(`SELECT * FROM public.usuarios where nombre_usuario='${user}' and password='${password}'`)
-//     .then(data => {
-//       if (data.rows.length > 0) {
-//         res.send({ token: service.createToken(user), user: data.rows, status: true });
-//         console.log(`USUARIO ${user} LOGEADO EXITOSAMENTE.`);
-//       } else {
-//         res.send({ status: false });
-//         console.log(`EL USARIO ${user} NO EXISTE.`);
-//       }
-//       client.end();
-//     })
-//     .catch(err => {
-//       console.log('ERROR DE LOGEO ->', err);
-//       res.send({ status: false });
-//       client.end();
-//    });
+router.get('/getNotesByList', (req, res) => {
+  const dataFormated = {};
+  pgClient
+  .query('SELECT L.id_lista, L.nombre_lista, N.id_nota, N.nombre_nota, N.desc_nota, N.fecha, E.nombre_estado ' +
+	'FROM public.lista as L LEFT JOIN public.nota AS N ' +
+	'ON N.id_lista = L.id_lista ' +
+	'LEFT JOIN public.estado_nota as E ' +
+	'ON N.id_estado_nota = E.id_estado_nota')
+  .then(data => {
+    data.rows.forEach(row => {
+      dataFormated[row.id_lista] = {
+        ...dataFormated[row.id_lista],
+        nombre_lista: row.nombre_lista,
+      };
+      const nota = {
+        id_nota: row.id_nota,
+        nombre_nota: row.nombre_nota,
+        desc_nota: row.desc_nota,
+        nombre_estado: row.nombre_estado,
+        fecha: row.fecha,
+      };
+      if (!!dataFormated[row.id_lista].notas) {
+        dataFormated[row.id_lista].notas.push(nota);
+      }
+      else if (nota.id_nota) {
+        dataFormated[row.id_lista].notas = [ nota ]
+      }
+    });
+    res.send(dataFormated)
+  })
+  .catch(e => res.send(e.stack));
 });
 
-app.get('/get_inventario', middleware.ensureAuthenticated, (req, res) => {
-//   const client = getClient();
-//   client.connect();
-//   client.query('SELECT * FROM public.productos')
-//     .then(data => {
-//       res.send(data.rows);
-//       client.end();
-//       console.log('SE CONSULTARON LOS PRODUCTOS');
-//     })
-//     .catch(err => {
-//       console.log('ERROR AL CONSULTAR PRODUCTOS ->', err);
-//       client.end();
-//    });
+router.put('/updateList', (req, res) => {
+  const { id_lista, nombre_lista } = req.body;
+  console.log(`UPDATE public.lista SET nombre_lista='${id_lista}' WHERE id_lista=${nombre_lista}`)
+  pgClient
+  .query(`UPDATE public.lista SET nombre_lista='${nombre_lista}' WHERE id_lista=${id_lista}`)
+  .then(data => {
+    res.send({ status: data });
+  })
+  .catch(e => res.send(e.stack));
+});
+
+router.put('/updateNote', (req, res) => {
+  const { id_nota, nombre_nota, desc_nota, id_estado_nota, fecha } = req.body;
+  console.log(`UPDATE public.nota SET nombre_nota='${nombre_nota}', desc_nota='${desc_nota}', id_estado_nota${id_estado_nota}, fecha='${fecha}' WHERE id_nota=${id_nota}`)
+  pgClient
+  .query(`UPDATE public.nota SET nombre_nota='${nombre_nota}', desc_nota='${desc_nota}', id_estado_nota=${id_estado_nota}, fecha='${fecha}' WHERE id_nota=${id_nota}`)
+  .then(data => {
+    res.send({ status: data });
+  })
+  .catch(e => res.send(e.stack));
+});
+
+router.post('/addList', (req, res) => {
+  const { nombre_lista } = req.body;
+  console.log(`INSERT INTO public.lista(nombre_lista) VALUES ('${nombre_lista}')`)
+  pgClient
+  .query(`INSERT INTO public.lista(nombre_lista) VALUES ('${nombre_lista}')`)
+  .then(data => {
+    res.send({ status: data });
+  })
+  .catch(e => res.send(e.stack));
+});
+
+router.post('/addNote', (req, res) => {
+  const { nombre_nota, desc_nota, id_estado_nota, id_lista, fecha } = req.body;
+  console.log(`INSERT INTO public.nota(nombre_nota, desc_nota, id_estado_nota, id_lista, fecha) VALUES ('${nombre_nota}', '${desc_nota}', ${id_estado_nota}, ${id_lista}, ${fecha})`)
+  pgClient
+  .query(`INSERT INTO public.nota(nombre_nota, desc_nota, id_estado_nota, id_lista, fecha) VALUES ('${nombre_nota}', '${desc_nota}', ${id_estado_nota}, ${id_lista}, '${fecha}')`)
+  .then(data => {
+    res.send({ status: data });
+  })
+  .catch(e => res.send(e.stack));
+});
+
+router.delete('/deleteNote', (req, res) => {
+  const { id_nota } = req.body;
+  console.log(`DELETE FROM public.nota WHERE id_nota=${id_nota}`)
+  pgClient
+  .query(`DELETE FROM public.nota WHERE id_nota=${id_nota}`)
+  .then(data => {
+    res.send({ status: data });
+  })
+  .catch(e => res.send(e.stack));
+});
+
+router.delete('/deleteList', (req, res) => {
+  const { id_list } = req.body;
+  console.log(`DELETE FROM public.lista WHERE id_lista=${id_list}`)
+  pgClient
+  .query(`DELETE FROM public.lista WHERE id_lista=${id_list}`)
+  .then(data => {
+    res.send({ status: data });
+  })
+  .catch(e => res.send(e.stack));
 });
 
 
-app.post('/update_producto', middleware.ensureAuthenticated, (req, res) => {
-//   const data_updated = req.body.productos;
-//   const client = getClient();
-//   client.connect();
-//   data_updated.forEach(element => {
-//     const queryString = `UPDATE public.productos SET id_categoria=${element.id_categoria}, precio_compra=${element.precio_compra}, precio_venta=${element.precio_venta}, inventario=${element.inventario}, nombre_producto='${element.nombre_producto}' WHERE id=${element.id}`;
-//     client.query(queryString)
-//     .then(() => {
-//       res.send({ status: true });
-//       console.log(`SE ACTUALIZO EL PRODUCTO ${element.id}.`);
-//     })
-//     .catch(err => {
-//       console.log('ERROR AL EDITAR PRODUCTO ->', err);
-//       res.send({ status: false });
-//       client.end();
-//    })
-//   });
+
+// USE MIDDLEWARE
+app.get('/prueba', middleware.ensureAuthenticated, (req, res) => {
+
 });
 
 app.listen(PORT,HOST, () => console.log('Server Running.....'));
