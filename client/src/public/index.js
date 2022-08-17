@@ -8,6 +8,7 @@ const history = createBrowserHistory();
 
 import Container from '../common/components/Container';
 
+require('antd/dist/antd.css');
 require('../common/stylesheets/general.scss');
 
 ReactDOM.render((

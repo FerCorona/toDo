@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu } from 'antd';
-require('antd/dist/antd.css');
+import { Avatar, Image } from 'antd';
+import { MenuOutlined } from '@ant-design/icons';
 
-import { getSaludo } from '../helpers/api-helpers';
+import Listas from './Listas';
+import Tareas from './Tareas';
 
 const Container = ({ }) => {
-  const [ notas, setNotas ] = useState([]);
-  useEffect(() => {
-    getSaludo()
-    .then(data => setNotas(data.data))
-    .catch(err => console.log(err));
-  });
+  
   return(
-    <div>App {notas.map(note => note.nombre_nota)}</div>
+    <>
+      <div className='NavBar'>
+        <div className='Margin'>
+          <MenuOutlined />
+        </div>
+        <div className='Margin'>
+          Fernando Garcia Corona
+          <Avatar src={<Image src="https://joeschmoe.io/api/v1/random" style={{ width: 32 }} />} />
+        </div>
+      </div>
+      <div className='DataContainer'>
+        <div className='Listas'>
+          <Listas />
+        </div>
+        <div className='Tareas'>
+          <Tareas />
+        </div>
+      </div>
+    </>
   );
 };
 
