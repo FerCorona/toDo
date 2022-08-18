@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, PageHeader, Button } from 'antd';
+import React from 'react';
+import { PageHeader, Button } from 'antd';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { addTask, updateTask } from '../helpers/api-helpers';
+import { isMobile }  from '../helpers/helpers';
 
 import Task from './Task';
-import { isMobile }  from '../helpers/helpers';
 
 const Tareas = ({ tasks, setListSelected, listSelected, fetchData }) => {
   const taskVerif = tasks ? tasks.notas : [];
@@ -17,20 +17,19 @@ const Tareas = ({ tasks, setListSelected, listSelected, fetchData }) => {
      })
      .then(() => fetchData(false))
      .catch(e => console.log(e));
-     console.log(id_nota)
   };
   return(
     <>
       { isMobile() && (
         <PageHeader
-          title='Mis Tareas (Lista 2)'
+          title='Mis Tareas'
           onBack={() => setListSelected({ key: null})}
         />
       )}
       <div className='TareasContainer'>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable key={'PENDIENTE'} droppableId={'1'}>
-            {(provided, snapshot) => (
+            {(provided) => (
               <div className='RowTask' ref={provided.innerRef} {...provided.droppableProps}>
                 <div className='HeaderAddContainer'>
                   <PageHeader title='PENDIENTE' />
@@ -55,7 +54,7 @@ const Tareas = ({ tasks, setListSelected, listSelected, fetchData }) => {
                       draggableId={`${task.id_nota}`}
                       index={task.id_nota}
                     >
-                      {(provided, snapshot) => (
+                      {(provided) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
@@ -72,7 +71,7 @@ const Tareas = ({ tasks, setListSelected, listSelected, fetchData }) => {
             )}
           </Droppable>
           <Droppable key={'EN REVISIÓN'} droppableId={'2'}>
-            {(provided, snapshot) => (
+            {(provided) => (
               <div className='RowTask' ref={provided.innerRef} {...provided.droppableProps}>
                 <PageHeader title='EN REVISIÓN' />
                 <div className='TaskScroll'>

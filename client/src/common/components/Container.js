@@ -8,10 +8,11 @@ import { getListas, getNotesByList } from '../helpers/api-helpers';
 import Listas from './Listas';
 import Tareas from './Tareas';
 
-const Container = ({ }) => {
+const Container = () => {
   const [ listSelected, setListSelected ] = useState({ key: null});
   const [ listas, setListas ] = useState([ ]);
   const [ tasks, setTasks ] = useState({});
+
   const fetchData = (clean = false) => {
     Promise.all([
       getListas(),
@@ -26,9 +27,7 @@ const Container = ({ }) => {
       })
       .catch(e => console.log(e));
   };
-  useEffect(() => {
-    fetchData();
-  }, []); 
+  useEffect(fetchData, []); 
   return(
     <>
       <div className='NavBar'>
@@ -36,7 +35,7 @@ const Container = ({ }) => {
           <MenuOutlined />
         </div>
         <div className='Margin'>
-          Fernando Garcia Corona
+          User
           <Avatar src={<Image src='https://joeschmoe.io/api/v1/random' style={{ width: 32 }} />} />
         </div>
       </div>

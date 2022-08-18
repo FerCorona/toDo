@@ -74,7 +74,6 @@ router.post('/getNotesByList', (req, res) => {
 });
 
 router.get('/getList', (req, res) => {
-  const dataFormated = {};
   pgClient
   .query('SELECT * FROM public.lista')
   .then(data => {

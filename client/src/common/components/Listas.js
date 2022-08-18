@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Menu, PageHeader, Input, Button } from 'antd';
-import { CheckCircleOutlined, AppstoreAddOutlined, DeleteRowOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, AppstoreAddOutlined } from '@ant-design/icons';
 
 import { addList, deleteList } from '../helpers/api-helpers';
-
 
 const Listas = ({ listas, setListSelected, fetchData, tasks  }) => {
   const [ nameNewList, setNameNewList ] = useState('');
@@ -39,9 +38,7 @@ const Listas = ({ listas, setListSelected, fetchData, tasks  }) => {
         title='Mis listas'
       />
       <Menu
-        onClick={list => {
-          setListSelected(items.find(item => item.key == list.key));
-        }}
+        onClick={list => setListSelected(items.find(item => item.key == list.key))}
         mode='vertical'
         items={items}
       />

@@ -25,8 +25,6 @@ const instance = axios.create({
 //  return error;
 // });
 
-const getSaludo = user => instance.get(`/saludo`, encodeParams(user));
-
 const getListas = () => instance.get(`/getList`);
 
 const getNotesByList = params => instance.post(`/getNotesByList`, encodeParams(params));
@@ -43,7 +41,6 @@ const deleteList = params => instance.post(`/deleteList`, encodeParams(params));
 
 
 export {
-  getSaludo,
   getListas,
   getNotesByList,
   addList,

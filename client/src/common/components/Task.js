@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, DatePicker, Input, Button } from 'antd';
 import moment from 'moment';
 

@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
-import { MenuOutlined } from '@ant-design/icons';
-
-import { isMobile }  from '../helpers/helpers';
 
 const LogIn = ({ }) => {
   const onFinish = (values) => {
