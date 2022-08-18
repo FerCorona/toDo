@@ -1,26 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, PageHeader, Button } from 'antd';
-import { UnorderedListOutlined } from '@ant-design/icons';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+import { addTask, updateTask } from '../helpers/api-helpers';
 
 import Task from './Task';
 import { isMobile }  from '../helpers/helpers';
 
-const onDragEnd = (result)  => {
-  const { source, destination } = result;
-  console.log(result);
-};
-
-const Tareas = ({ tasks, setListSelected, addTask }) => {
+const Tareas = ({ tasks, setListSelected, listSelected, fetchData }) => {
+  const taskVerif = tasks ? tasks.notas : [];
+  const onDragEnd = (result)  => {
+    const { source, destination } = result;
+     updateTask({
+       id_nota: source.index,
+       id_estado_nota: destination.droppableId
+     })
+     .then(() => fetchData(false))
+     .catch(e => console.log(e));
+     console.log(id_nota)
+  };
   return(
     <>
-      <PageHeader
-        title='Mis Tareas (Lista 2)'
-        onBack={() => setListSelected(null)}
-      />
+      { isMobile() && (
+        <PageHeader
+          title='Mis Tareas (Lista 2)'
+          onBack={() => setListSelected({ key: null})}
+        />
+      )}
       <div className='TareasContainer'>
         <DragDropContext onDragEnd={onDragEnd}>
-          <Droppable key={'PENDIENTE'} droppableId={`${'PENDIENTE'}`}>
+          <Droppable key={'PENDIENTE'} droppableId={'1'}>
             {(provided, snapshot) => (
               <div className='RowTask' ref={provided.innerRef} {...provided.droppableProps}>
                 <div className='HeaderAddContainer'>
@@ -28,25 +37,32 @@ const Tareas = ({ tasks, setListSelected, addTask }) => {
                   <Button
                     type='link'
                     size='small'
-                    onClick={addTask}
+                    onClick={() => {
+                      addTask({
+                        id_lista: listSelected
+                      })
+                      .then(() => fetchData())
+                      .catch(e => console.log(e));
+                    }}
                     >
                     + Agregar task
                   </Button>
                 </div>
                 <div className='TaskScroll'>
-                  {tasks.filter(task => task.nombre_estado === 'PENDIENTE').map((task, i) => (
+                  {taskVerif.filter(task => task.nombre_estado === 'PENDIENTE').map((task, i) => (
                     <Draggable
-                      key={i + 1}
-                      draggableId={task.id_nota}
-                      index={i + 1}
+                      key={task.id_nota}
+                      draggableId={`${task.id_nota}`}
+                      index={task.id_nota}
                     >
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
+                          {...task} 
                         >
-                          <Task {...task} />
+                          <Task {...task} fetchData={fetchData} />
                         </div>
                       )}
                     </Draggable>
@@ -55,24 +71,25 @@ const Tareas = ({ tasks, setListSelected, addTask }) => {
               </div>
             )}
           </Droppable>
-          <Droppable key={'EN REVISIÓN'} droppableId={`${'EN REVISIÓN'}`}>
+          <Droppable key={'EN REVISIÓN'} droppableId={'2'}>
             {(provided, snapshot) => (
               <div className='RowTask' ref={provided.innerRef} {...provided.droppableProps}>
                 <PageHeader title='EN REVISIÓN' />
                 <div className='TaskScroll'>
-                  {tasks.filter(task => task.nombre_estado === 'EN REVISIÓN').map((task, i) => (
+                  {taskVerif.filter(task => task.nombre_estado === 'EN REVISIÓN').map((task, i) => (
                     <Draggable
-                      key={i * 10 + 1}
-                      draggableId={task.id_nota}
-                      index={i * 10 + 1}
+                    key={task.id_nota}
+                    draggableId={`${task.id_nota}`}
+                    index={task.id_nota}
                     >
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
+                          {...task} 
                         >
-                          <Task {...task} />
+                          <Task {...task}  fetchData={fetchData} />
                         </div>
                       )}
                     </Draggable>
@@ -81,24 +98,25 @@ const Tareas = ({ tasks, setListSelected, addTask }) => {
               </div>
             )}
           </Droppable>
-          <Droppable key={'TERMINADO'} droppableId={`${'TERMINADO'}`}>
+          <Droppable key={'TERMINADO'} droppableId={'3'}>
             {(provided, snapshot) => (
               <div className='RowTask' ref={provided.innerRef} {...provided.droppableProps}>
                 <PageHeader title='TERMINADO' />
                 <div className='TaskScroll'>
-                  {tasks.filter(task => task.nombre_estado === 'TERMINADO').map((task, i) => (
+                  {taskVerif.filter(task => task.nombre_estado === 'TERMINADO').map((task, i) => (
                     <Draggable
-                      key={i * 20 + 1}
-                      draggableId={task.id_nota}
-                      index={i * 20 + 1}
+                      key={task.id_nota}
+                      draggableId={`${task.id_nota}`}
+                      index={task.id_nota}
                     >
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
+                          {...task} 
                         >
-                          <Task {...task} />
+                          <Task {...task}  fetchData={fetchData} />
                         </div>
                       )}
                     </Draggable>
@@ -114,66 +132,8 @@ const Tareas = ({ tasks, setListSelected, addTask }) => {
 };
 
 Tareas.defaultProps = {
-  id_lista: '123',
+  listSelected: '123',
   nombre_lista: 'Lista 1',
-  tasks: [
-    {
-      id_nota: 'rgbbe1',
-      nombre_nota: 'nota 1',
-      desc_nota: 'desc nota',
-      nombre_estado: 'PENDIENTE',
-      fecha: '2022-13-09',
-    },
-    {
-      id_nota: 'rg5667bbe2',
-      nombre_nota: 'nota 1',
-      desc_nota: 'desc nota',
-      nombre_estado: 'PENDIENTE',
-      fecha: '2022-13-09',
-    },
-    {
-      id_nota: 'rgbg45be3',
-      nombre_nota: 'nota 1',
-      desc_nota: 'desc nota',
-      nombre_estado: 'PENDIENTE',
-      fecha: '2022-13-09',
-    },
-    {
-      id_nota: 'rgb56875be4',
-      nombre_nota: 'nota 1',
-      desc_nota: 'desc nota',
-      nombre_estado: 'TERMINADO',
-      fecha: '2022-13-09',
-    },
-    {
-      id_nota: 'rgbbe5',
-      nombre_nota: 'nota 1',
-      desc_nota: 'desc nota',
-      nombre_estado: 'PENDIENTE',
-      fecha: '2022-13-09',
-    },
-    {
-      id_nota: 'rg5667bbe6',
-      nombre_nota: 'nota 1',
-      desc_nota: 'desc nota',
-      nombre_estado: 'EN REVISIÓN',
-      fecha: '2022-13-09',
-    },
-    {
-      id_nota: 'rgbg45be7',
-      nombre_nota: 'nota 1',
-      desc_nota: 'desc nota',
-      nombre_estado: 'PENDIENTE',
-      fecha: '2022-13-09',
-    },
-    {
-      id_nota: 'rgb56875be8',
-      nombre_nota: 'nota 1',
-      desc_nota: 'desc nota',
-      nombre_estado: 'TERMINADO',
-      fecha: '2022-13-09',
-    }
-  ],
   addTask: () => null
 }
 

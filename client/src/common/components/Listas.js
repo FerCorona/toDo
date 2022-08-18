@@ -1,14 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, PageHeader, Input } from 'antd';
-import { CheckCircleOutlined, AppstoreAddOutlined } from '@ant-design/icons';
+import { Menu, PageHeader, Input, Button } from 'antd';
+import { CheckCircleOutlined, AppstoreAddOutlined, DeleteRowOutlined } from '@ant-design/icons';
+
+import { addList, deleteList } from '../helpers/api-helpers';
 
 
-const Listas = ({ listas, onSelectedLista, listSelected, setListSelected  }) => {
+const Listas = ({ listas, setListSelected, fetchData, tasks  }) => {
   const [ nameNewList, setNameNewList ] = useState('');
   const items = listas.map(lista => ({
     key: lista.id_lista,
     icon: <CheckCircleOutlined />,
-    label: lista.nombre_lista
+    label: (
+      <>
+        {lista.nombre_lista} 
+        {(!!tasks[lista.id_lista] && tasks[lista.id_lista].notas.length === 0) && (
+          <Button
+            type='link'
+            size='small'
+            style={{color: '#e91e63'}}
+            onClick={() => {
+              deleteList({
+                id_list: lista.id_lista
+              })
+                .then(() => fetchData())
+                .catch(e => console.log(e));
+            }}
+          >
+            Eliminar
+          </Button>
+        )}
+      </>
+    )
   }));
   return(
     <>
@@ -17,7 +39,9 @@ const Listas = ({ listas, onSelectedLista, listSelected, setListSelected  }) => 
         title='Mis listas'
       />
       <Menu
-        onClick={list => listSelected === list.key ? setListSelected(null) : setListSelected(list.key)}
+        onClick={list => {
+          setListSelected(items.find(item => item.key == list.key));
+        }}
         mode='vertical'
         items={items}
       />
@@ -27,7 +51,9 @@ const Listas = ({ listas, onSelectedLista, listSelected, setListSelected  }) => 
           placeholder={'Agregar nueva lista'}
           bordered={false}
           onPressEnter={e => {
-            console.log(e.target.value);
+            addList({ nombre_lista: e.target.value})
+              .then(() => fetchData())
+              .catch(e => console.log(e))
             setNameNewList('');
           }}
           onChange={e => setNameNewList(e.target.value)}

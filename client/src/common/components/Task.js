@@ -1,20 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { Card, DatePicker, Input, Button } from 'antd';
-import { UnorderedListOutlined } from '@ant-design/icons';
+import moment from 'moment';
 
+import { deleteNote, updateTask } from '../helpers/api-helpers';
 
-const Task = ({ id_nota, nombre_nota, desc_nota, nombre_estado, fecha }) => {
+const Task = ({ id_nota, nombre_nota, desc_nota, fecha, id_estado_nota, fetchData }) => {
+  const [ nombreU, setNombreU ] = useState(nombre_nota);
+  const [ desc, setDesc ] = useState(desc_nota);
   return(
     <Card
-      title={<Input value={nombre_nota} bordered={false} />}
-      extra={<DatePicker bordered={false} picker='date' />}
+      title={<Input bordered={false} value={nombreU} onChange={e => setNombreU(e.target.value)} />}
+      extra={<DatePicker value={moment(fecha, 'YYYY-MM-DD')} bordered={false} picker='date' allowClear={false} disabled />}
       size='small'
+      id={id_nota}
     >
-      <Input value={desc_nota} bordered={false} />
+      <Input bordered={false} value={desc} onChange={e => setDesc(e.target.value)} />
+      {
+        (nombreU !== nombre_nota || desc !== desc_nota) && (
+          <Button
+            type='link'
+            size='small'
+            style={{color: '#ffb300'}}
+            onClick={() => {
+              updateTask({
+                id_nota,
+                nombre_nota: nombreU,
+                desc_nota: desc,
+                id_estado_nota
+              })
+              .then(() => fetchData())
+              .catch(e => console.log(e));
+            }}
+          >
+            Guardar cambios
+          </Button>
+        )
+      }
       <Button
         type='link'
         size='small'
-        onClick={() => null}
+        onClick={() => {
+          deleteNote({
+            id_nota
+          })
+          .then(() => fetchData())
+          .catch(e => console.log(e));
+        }}
       >
         Eliminar
       </Button>

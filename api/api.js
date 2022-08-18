@@ -37,14 +37,14 @@ router.get('/saludo', (req, res) => {
   .catch(e => res.send(e.stack))
 });
 
-router.get('/getNotesByList', (req, res) => {
+router.post('/getNotesByList', (req, res) => {
   const dataFormated = {};
   pgClient
-  .query('SELECT L.id_lista, L.nombre_lista, N.id_nota, N.nombre_nota, N.desc_nota, N.fecha, E.nombre_estado ' +
+  .query('SELECT L.id_lista, L.nombre_lista, N.id_nota, N.nombre_nota, N.desc_nota, N.fecha, E.nombre_estado, E.id_estado_nota ' +
 	'FROM public.lista as L LEFT JOIN public.nota AS N ' +
 	'ON N.id_lista = L.id_lista ' +
 	'LEFT JOIN public.estado_nota as E ' +
-	'ON N.id_estado_nota = E.id_estado_nota')
+	'ON N.id_estado_nota = E.id_estado_nota ')
   .then(data => {
     data.rows.forEach(row => {
       dataFormated[row.id_lista] = {
@@ -56,16 +56,29 @@ router.get('/getNotesByList', (req, res) => {
         nombre_nota: row.nombre_nota,
         desc_nota: row.desc_nota,
         nombre_estado: row.nombre_estado,
+        id_estado_nota: row.id_estado_nota,
         fecha: row.fecha,
       };
       if (!!dataFormated[row.id_lista].notas) {
         dataFormated[row.id_lista].notas.push(nota);
       }
       else if (nota.id_nota) {
-        dataFormated[row.id_lista].notas = [ nota ]
+        dataFormated[row.id_lista].notas = [ nota ];
+      } else {
+        dataFormated[row.id_lista].notas = [];
       }
     });
     res.send(dataFormated)
+  })
+  .catch(e => res.send(e.stack));
+});
+
+router.get('/getList', (req, res) => {
+  const dataFormated = {};
+  pgClient
+  .query('SELECT * FROM public.lista')
+  .then(data => {
+    res.send(data.rows)
   })
   .catch(e => res.send(e.stack));
 });
@@ -83,9 +96,13 @@ router.put('/updateList', (req, res) => {
 
 router.put('/updateNote', (req, res) => {
   const { id_nota, nombre_nota, desc_nota, id_estado_nota, fecha } = req.body;
-  console.log(`UPDATE public.nota SET nombre_nota='${nombre_nota}', desc_nota='${desc_nota}', id_estado_nota${id_estado_nota}, fecha='${fecha}' WHERE id_nota=${id_nota}`)
+  let query = `UPDATE public.nota SET nombre_nota='${nombre_nota}', desc_nota='${desc_nota}', id_estado_nota=${id_estado_nota} WHERE id_nota=${id_nota}`;
+  if (!nombre_nota && !desc_nota && !fecha) {
+    query = `UPDATE public.nota SET id_estado_nota=${id_estado_nota} WHERE id_nota=${id_nota}`;
+  }
+  console.log(query)
   pgClient
-  .query(`UPDATE public.nota SET nombre_nota='${nombre_nota}', desc_nota='${desc_nota}', id_estado_nota=${id_estado_nota}, fecha='${fecha}' WHERE id_nota=${id_nota}`)
+  .query(query)
   .then(data => {
     res.send({ status: data });
   })
@@ -104,17 +121,16 @@ router.post('/addList', (req, res) => {
 });
 
 router.post('/addNote', (req, res) => {
-  const { nombre_nota, desc_nota, id_estado_nota, id_lista, fecha } = req.body;
-  console.log(`INSERT INTO public.nota(nombre_nota, desc_nota, id_estado_nota, id_lista, fecha) VALUES ('${nombre_nota}', '${desc_nota}', ${id_estado_nota}, ${id_lista}, ${fecha})`)
+  const { id_lista } = req.body;
   pgClient
-  .query(`INSERT INTO public.nota(nombre_nota, desc_nota, id_estado_nota, id_lista, fecha) VALUES ('${nombre_nota}', '${desc_nota}', ${id_estado_nota}, ${id_lista}, '${fecha}')`)
+  .query(`INSERT INTO public.nota(nombre_nota, desc_nota, id_estado_nota, id_lista, fecha) VALUES ('Nombre task', 'Desc task', 1, ${id_lista}, NOW())`)
   .then(data => {
     res.send({ status: data });
   })
   .catch(e => res.send(e.stack));
 });
 
-router.delete('/deleteNote', (req, res) => {
+router.post('/deleteNote', (req, res) => {
   const { id_nota } = req.body;
   console.log(`DELETE FROM public.nota WHERE id_nota=${id_nota}`)
   pgClient
@@ -125,7 +141,7 @@ router.delete('/deleteNote', (req, res) => {
   .catch(e => res.send(e.stack));
 });
 
-router.delete('/deleteList', (req, res) => {
+router.post('/deleteList', (req, res) => {
   const { id_list } = req.body;
   console.log(`DELETE FROM public.lista WHERE id_lista=${id_list}`)
   pgClient

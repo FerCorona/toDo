@@ -27,6 +27,28 @@ const instance = axios.create({
 
 const getSaludo = user => instance.get(`/saludo`, encodeParams(user));
 
+const getListas = () => instance.get(`/getList`);
+
+const getNotesByList = params => instance.post(`/getNotesByList`, encodeParams(params));
+
+const addList = params => instance.post(`/addList`, encodeParams(params));
+
+const addTask = params => instance.post(`/addNote`, encodeParams(params));
+
+const deleteNote = params => instance.post(`/deleteNote`, encodeParams(params));
+
+const updateTask = params => instance.put(`/updateNote`, encodeParams(params));
+
+const deleteList = params => instance.post(`/deleteList`, encodeParams(params));
+
+
 export {
-  getSaludo
+  getSaludo,
+  getListas,
+  getNotesByList,
+  addList,
+  addTask,
+  deleteNote,
+  updateTask,
+  deleteList
 };
