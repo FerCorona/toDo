@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, DatePicker, Input } from 'antd';
+import { Card, DatePicker, Input, Button } from 'antd';
 import { UnorderedListOutlined } from '@ant-design/icons';
 
 
@@ -11,6 +11,13 @@ const Task = ({ id_nota, nombre_nota, desc_nota, nombre_estado, fecha }) => {
       size='small'
     >
       <Input value={desc_nota} bordered={false} />
+      <Button
+        type='link'
+        size='small'
+        onClick={() => null}
+      >
+        Eliminar
+      </Button>
     </Card>
   );
 };

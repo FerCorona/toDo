@@ -62,10 +62,17 @@ html, body{
     .ant-menu-inline, .ant-menu-vertical, .ant-menu-vertical-left {
       border-right: none;
     }
+    .NewList {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 8px;
+      padding: 0 16px;
+      align-items: center;
+    }
   }
   .Tareas {
     width: -webkit-fill-available;
-    height: calc(100% - 91px);
+    height: calc(100% - 90px);
     .TareasContainer {
       display: flex;
       justify-content: space-evenly;
@@ -76,6 +83,28 @@ html, body{
         background-color: #FAFAFA;
         border-radius: 20px;
         box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
+        &:hover {
+          box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 30px;
+        }
+        .ant-page-header {
+          height: 20%;
+        }
+        .TaskScroll {
+          overflow-y: auto;
+          height: 80%;
+          ::-webkit-scrollbar-track {
+            height: 80%;
+            background: white; 
+            box-shadow: none; 
+            border-radius: 10px;
+          }
+          .ant-btn-link {
+            width: 100%;
+            display: flex;
+            justify-content: end;
+            color: #e91e63;
+          }
+        }
       }
       .ant-card {
         width: 95%;
@@ -85,7 +114,7 @@ html, body{
         border-radius: 10px;
         box-shadow: rgba(0, 0, 0, 0.08) 0px 4px 12px;
         &:hover {
-          box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+          box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 30px;
         }
       }
       .ant-card-body p {
@@ -93,8 +122,59 @@ html, body{
       }
       .anticon .anticon-calendar,
       .ant-picker-input input{
-        color: #FF5193;
+        color: #66bb6a;
+      }
+      .HeaderAddContainer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
     }
+    .ant-result {
+      height: calc(100% - 90px);
+      display: flex;
+      justify-content: center;
+      flex-flow: column;
+    }
+  }
+}
+
+@media only screen and (max-width: 992px) {
+  .Listas {
+    width: 100% !important;
+    max-width: none !important;
+    border-radius: 0 0 20px 20px !important;
+    ul {
+      border-radius: 0 0 20px 20px !important;
+      li {
+        margin: 20px 0 !important;
+      }
+    }
+  }
+  .Tareas {
+    width: 100% !important;
+    .TareasContainer {
+      flex-flow: column;
+      .RowTask {
+        height: 30% !important;
+        width: calc(100% - 40px) !important;
+      }
+    }
+  }
+  #app {
+    height: auto !important;
+  }
+  html, body{
+    overflow-y: auto !important;
+    font-size: 20px !important;
+  }
+  span {
+    font-size: 20px !important;
+  }
+  input {
+    font-size: 20px !important;
+  }
+  .ant-page-header-heading-title {
+    font-size: 25px !important;
   }
 }

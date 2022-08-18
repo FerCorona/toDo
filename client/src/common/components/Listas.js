@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, PageHeader } from 'antd';
-import { UnorderedListOutlined } from '@ant-design/icons';
+import { Menu, PageHeader, Input } from 'antd';
+import { CheckCircleOutlined, AppstoreAddOutlined } from '@ant-design/icons';
 
 
-const Listas = ({ listas, onSelectedLista }) => {
+const Listas = ({ listas, onSelectedLista, listSelected, setListSelected  }) => {
+  const [ nameNewList, setNameNewList ] = useState('');
   const items = listas.map(lista => ({
     key: lista.id_lista,
-    icon: <UnorderedListOutlined />,
+    icon: <CheckCircleOutlined />,
     label: lista.nombre_lista
-  }))
+  }));
   return(
     <>
       <PageHeader
@@ -16,10 +17,23 @@ const Listas = ({ listas, onSelectedLista }) => {
         title='Mis listas'
       />
       <Menu
-        onClick={onSelectedLista}
+        onClick={list => listSelected === list.key ? setListSelected(null) : setListSelected(list.key)}
         mode='vertical'
         items={items}
       />
+      <div className='NewList'>
+        <AppstoreAddOutlined />
+        <Input
+          placeholder={'Agregar nueva lista'}
+          bordered={false}
+          onPressEnter={e => {
+            console.log(e.target.value);
+            setNameNewList('');
+          }}
+          onChange={e => setNameNewList(e.target.value)}
+          value={nameNewList}
+        />
+      </div>
     </>
   );
 };
