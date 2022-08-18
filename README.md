@@ -24,6 +24,6 @@ You will see a board, with some dummy data, you can add more lists and task and 
 
 In the project we have some dirs:
 
-```api```: In this dir we have our server for back-end, we use Javascript, Node.js, Express and here we use Postgres to fetch data.
-```client```: In this dir we have our assets for the front-end, we use Javascript, React, Webpack, Babel, Antd and Scss.
-```nginx```: Here we have our proxy, to could allow back and front get communicated.
+- ```api```: In this dir we have our server for back-end, we use Javascript, Node.js, Express and here we use Postgres to fetch data.
+- ```client```: In this dir we have our assets for the front-end, we use Javascript, React, Webpack, Babel, Antd and Scss.
+- ```nginx```: Here we have our proxy, to could allow back and front get communicated.
