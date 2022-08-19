@@ -27,3 +27,12 @@ In the project we have some dirs:
 - ```api```: In this dir we have our server for back-end, we use Javascript, Node.js, Express and here we use Postgres to fetch data.
 - ```client```: In this dir we have our assets for the front-end, we use Javascript, React, Webpack, Babel, Antd and Scss.
 - ```nginx```: Here we have our proxy, to could allow back and front get communicated.
+
+
+## Sign in
+
+You will see a form (http://localhost:8080/login) when you can set your crendentials and sign in. By default there is a username with the following ```username:user1``` and ```password:qwerty1234```
+
+## Sign up
+
+You can add more users (http://localhost:8080/registro)
