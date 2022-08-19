@@ -29,22 +29,46 @@ const HOST = '0.0.0.0';
    port: keys.pgPort
  });
 
-
-router.get('/saludo', (req, res) => {
+router.post('/logIn', (req, res) => {
+  const { username, password } = req.body;
   pgClient
-  .query('SELECT id_nota, nombre_nota, desc_nota, id_estado_nota, id_lista, fecha FROM public.nota')
-  .then(data => res.send(data.rows))
-  .catch(e => res.send(e.stack))
+  .query(`SELECT * FROM public.usuario WHERE username='${username}' AND password='${password}'`)
+  .then(data => {
+    if (data.rows.length > 0) {
+      console.log({ token: service.createToken(username), id_user: data.rows[0].id_user})
+      res.send({ token: service.createToken(username), id_user: data.rows[0].id_user, username: data.rows[0].username });
+      console.log(`USUARIO ${username} LOGEADO EXITOSAMENTE.`);
+    } else {
+      res.send({ token: null });
+      console.log(`EL USARIO ${username} NO EXISTE.`);
+    }
+  })
+  .catch(e => res.send(e.stack));
 });
 
-router.post('/getNotesByList', (req, res) => {
-  const dataFormated = {};
+router.post('/registrarme', (req, res) => {
+  const { username, password } = req.body;
   pgClient
-  .query('SELECT L.id_lista, L.nombre_lista, N.id_nota, N.nombre_nota, N.desc_nota, N.fecha, E.nombre_estado, E.id_estado_nota ' +
+  .query(`INSERT INTO public.usuario(username, password) VALUES ('${username}', '${password}')`)
+  .then(data => {
+    res.send({ message: 'Usuario registrado exitosamente!'});
+  })
+  .catch(e => res.send({ message: 'No se puede registrar en este momento, o el usuario ya existe!'}));
+});
+
+router.post('/getNotesByList', middleware.ensureAuthenticated, (req, res) => {
+  const { id_user } = req.body;
+  const dataFormated = {};
+  const query = 'SELECT L.id_lista, L.nombre_lista, N.id_nota, N.nombre_nota, N.desc_nota, N.fecha, E.nombre_estado, E.id_estado_nota ' +
 	'FROM public.lista as L LEFT JOIN public.nota AS N ' +
 	'ON N.id_lista = L.id_lista ' +
 	'LEFT JOIN public.estado_nota as E ' +
-	'ON N.id_estado_nota = E.id_estado_nota ')
+	'ON N.id_estado_nota = E.id_estado_nota ' +
+  'LEFT JOIN public.usuario as U ON U.id_user = L.id_user '+
+  'WHERE U.id_user = ' + id_user;
+  console.log(query);
+  pgClient
+  .query(query)
   .then(data => {
     data.rows.forEach(row => {
       dataFormated[row.id_lista] = {
@@ -73,16 +97,17 @@ router.post('/getNotesByList', (req, res) => {
   .catch(e => res.send(e.stack));
 });
 
-router.get('/getList', (req, res) => {
+router.post('/getList', middleware.ensureAuthenticated, (req, res) => {
+  const { id_user } = req.body;
   pgClient
-  .query('SELECT * FROM public.lista')
+  .query(`SELECT * FROM public.lista WHERE id_user = ${id_user}`)
   .then(data => {
     res.send(data.rows)
   })
   .catch(e => res.send(e.stack));
 });
 
-router.put('/updateList', (req, res) => {
+router.put('/updateList', middleware.ensureAuthenticated, (req, res) => {
   const { id_lista, nombre_lista } = req.body;
   console.log(`UPDATE public.lista SET nombre_lista='${id_lista}' WHERE id_lista=${nombre_lista}`)
   pgClient
@@ -93,7 +118,7 @@ router.put('/updateList', (req, res) => {
   .catch(e => res.send(e.stack));
 });
 
-router.put('/updateNote', (req, res) => {
+router.put('/updateNote', middleware.ensureAuthenticated, (req, res) => {
   const { id_nota, nombre_nota, desc_nota, id_estado_nota, fecha } = req.body;
   let query = `UPDATE public.nota SET nombre_nota='${nombre_nota}', desc_nota='${desc_nota}', id_estado_nota=${id_estado_nota} WHERE id_nota=${id_nota}`;
   if (!nombre_nota && !desc_nota && !fecha) {
@@ -108,18 +133,18 @@ router.put('/updateNote', (req, res) => {
   .catch(e => res.send(e.stack));
 });
 
-router.post('/addList', (req, res) => {
-  const { nombre_lista } = req.body;
-  console.log(`INSERT INTO public.lista(nombre_lista) VALUES ('${nombre_lista}')`)
+router.post('/addList', middleware.ensureAuthenticated, (req, res) => {
+  const { nombre_lista, id_user } = req.body;
+  console.log(`INSERT INTO public.lista(nombre_lista, id_user) VALUES ('${nombre_lista}', ${id_user})`)
   pgClient
-  .query(`INSERT INTO public.lista(nombre_lista) VALUES ('${nombre_lista}')`)
+  .query(`INSERT INTO public.lista(nombre_lista, id_user) VALUES ('${nombre_lista}', ${id_user})`)
   .then(data => {
     res.send({ status: data });
   })
   .catch(e => res.send(e.stack));
 });
 
-router.post('/addNote', (req, res) => {
+router.post('/addNote', middleware.ensureAuthenticated, (req, res) => {
   const { id_lista } = req.body;
   pgClient
   .query(`INSERT INTO public.nota(nombre_nota, desc_nota, id_estado_nota, id_lista, fecha) VALUES ('Nombre task', 'Desc task', 1, ${id_lista}, NOW())`)
@@ -129,7 +154,7 @@ router.post('/addNote', (req, res) => {
   .catch(e => res.send(e.stack));
 });
 
-router.post('/deleteNote', (req, res) => {
+router.post('/deleteNote', middleware.ensureAuthenticated, (req, res) => {
   const { id_nota } = req.body;
   console.log(`DELETE FROM public.nota WHERE id_nota=${id_nota}`)
   pgClient
@@ -140,7 +165,7 @@ router.post('/deleteNote', (req, res) => {
   .catch(e => res.send(e.stack));
 });
 
-router.post('/deleteList', (req, res) => {
+router.post('/deleteList', middleware.ensureAuthenticated, (req, res) => {
   const { id_list } = req.body;
   console.log(`DELETE FROM public.lista WHERE id_lista=${id_list}`)
   pgClient

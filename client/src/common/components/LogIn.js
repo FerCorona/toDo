@@ -1,8 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button } from 'antd';
+import React from 'react';
+import { Form, Input, Button, message } from 'antd';
 
-const LogIn = ({ }) => {
+// require('../stylesheets/login.scss');
+
+import { logIn } from '../helpers/api-helpers';
+
+const LogIn = () => {
   const onFinish = (values) => {
+    logIn(values)
+      .then((data) => {
+        const token = data.data.token;
+        if (token) {
+          localStorage.setItem('token', token);
+          localStorage.setItem('id_user', data.data.id_user);
+          localStorage.setItem('username', data.data.username);
+          message.success('Loggeado correctamente!');
+          window.location = window.location.protocol + '//' + window.location.host + '/';
+        } else {
+          message.error('Usuario no encontrado!');
+        }
+      })
+      .catch(e => console.log(e));
     console.log('Success:', values);
   };
 
@@ -41,8 +59,13 @@ const LogIn = ({ }) => {
           <Input.Password />
         </Form.Item>
         <Form.Item>
-          <Button type='link' htmlType='submit'>
+          <Button type='primary' htmlType='submit' block >
             Iniciar sesión
+          </Button>
+        </Form.Item>
+        <Form.Item>
+          <Button type='link' style={{color: '#ffb300'}} block onClick={() => window.location = window.location.protocol + '//' + window.location.host + '/registro'}>
+            Registrate
           </Button>
         </Form.Item>
       </Form>

@@ -2,7 +2,7 @@ const axios = require('axios');
 
 import { encodeParams } from './helpers';
 
-const TKN = () => sessionStorage.getItem('tkn');
+const TKN = () => localStorage.getItem('token');
 
 export const baseURL = '/api';
 
@@ -13,19 +13,19 @@ const instance = axios.create({
   headers
 });
 
-// instance.interceptors.response.use(response => {
-//   return response;
-// }, error => {
-//   const status = error.response?.status || 500;
-//   if (status === 401) {
-//     window.location = window.location.protocol + '//' + window.location.host + '/login'
-//   } else {
-//     return Promise.reject(error);
-//   }
-//  return error;
-// });
+instance.interceptors.response.use(response => {
+   return response;
+}, error => {
+   const status = error.response?.status || 500;
+   if (status === 401) {
+     window.location = window.location.protocol + '//' + window.location.host + '/login';
+   } else {
+     return Promise.reject(error);
+   }
+  return error;
+});
 
-const getListas = () => instance.get(`/getList`);
+const getListas = params => instance.post(`/getList`, encodeParams(params));
 
 const getNotesByList = params => instance.post(`/getNotesByList`, encodeParams(params));
 
@@ -39,6 +39,9 @@ const updateTask = params => instance.put(`/updateNote`, encodeParams(params));
 
 const deleteList = params => instance.post(`/deleteList`, encodeParams(params));
 
+const logIn = params => instance.post(`/logIn`, encodeParams(params));
+
+const registrarme = params => instance.post(`/registrarme`, encodeParams(params));
 
 export {
   getListas,
@@ -47,5 +50,7 @@ export {
   addTask,
   deleteNote,
   updateTask,
-  deleteList
+  deleteList,
+  logIn,
+  registrarme
 };
