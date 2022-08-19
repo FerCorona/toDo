@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button } from 'antd';
-import { MenuOutlined } from '@ant-design/icons';
+import React from 'react';
+import { Form, Input, Button, message } from 'antd';
 
-import { isMobile }  from '../helpers/helpers';
+import { registrarme } from '../helpers/api-helpers';
+
+// require('../stylesheets/login.scss');
 
 const Registro = ({ }) => {
   const onFinish = (values) => {
-    console.log('Success:', values);
+    registrarme(values)
+      .then((data) => {
+        message.warning(data.data.message);
+        window.location = window.location.protocol + '//' + window.location.host + '/login';
+      })
+      .catch(e => message.warning('Intenta mas tarde'));
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -37,21 +43,43 @@ const Registro = ({ }) => {
           <Input />
         </Form.Item>
         <Form.Item
-          label='Contraseña'
           name='password'
-          rules={[{ required: true, message: 'Por favor ingresa tu nombre de contraseña!' }]}
+          label='Contraseña'
+          rules={[
+            {
+              required: true,
+              message: 'Por favor ingresa tu contraseña!',
+            },
+          ]}
+          hasFeedback
         >
           <Input.Password />
         </Form.Item>
         <Form.Item
-          label='Confirmar Contraseña'
-          name='confirmPassword'
-          rules={[{ required: true, message: 'Por favor confirma tu nombre de contraseña!' }]}
+          name='confirm'
+          label='Confirmar contraseña'
+          dependencies={['password']}
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message: 'Por favor confirma tu contraseña!',
+            },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('password') === value) {
+                  return Promise.resolve();
+                }
+
+                return Promise.reject(new Error('Las dos contraseñas ingresadas deben ser iguales!'));
+              },
+            }),
+          ]}
         >
           <Input.Password />
         </Form.Item>
         <Form.Item>
-          <Button type='link' htmlType='submit'>
+          <Button type='primary' htmlType='submit' block >
             Registrarme
           </Button>
         </Form.Item>

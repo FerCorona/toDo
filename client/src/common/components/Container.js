@@ -15,8 +15,8 @@ const Container = () => {
 
   const fetchData = (clean = false) => {
     Promise.all([
-      getListas(),
-      getNotesByList()
+      getListas({ id_user: localStorage.getItem('id_user')}),
+      getNotesByList({ id_user: localStorage.getItem('id_user') })
     ])
       .then(([ listas, tasks ]) => {
         setListas(listas.data);
@@ -35,7 +35,7 @@ const Container = () => {
           <MenuOutlined />
         </div>
         <div className='Margin'>
-          User
+          {localStorage.getItem('username') || ''}
           <Avatar src={<Image src='https://joeschmoe.io/api/v1/random' style={{ width: 32 }} />} />
         </div>
       </div>

@@ -21,7 +21,7 @@ const Listas = ({ listas, setListSelected, fetchData, tasks  }) => {
               deleteList({
                 id_list: lista.id_lista
               })
-                .then(() => fetchData())
+                .then(() => fetchData(true))
                 .catch(e => console.log(e));
             }}
           >
@@ -48,7 +48,7 @@ const Listas = ({ listas, setListSelected, fetchData, tasks  }) => {
           placeholder={'Agregar nueva lista'}
           bordered={false}
           onPressEnter={e => {
-            addList({ nombre_lista: e.target.value})
+            addList({ nombre_lista: e.target.value, id_user: localStorage.getItem('id_user') })
               .then(() => fetchData())
               .catch(e => console.log(e))
             setNameNewList('');
