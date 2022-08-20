@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { PageHeader, Button } from 'antd';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import { addTask, updateTask } from '../helpers/api-helpers';
-import { isMobile }  from '../helpers/helpers';
 
 import Task from './Task';
+import ListenerMobile from './ListenerMobile';
 
 const Tareas = ({ tasks, setListSelected, listSelected, fetchData }) => {
+  const [ mobile, setMobile ] = useState(false);
   const taskVerif = tasks ? tasks.notas : [];
   const onDragEnd = (result)  => {
     const { source, destination } = result;
@@ -20,7 +21,7 @@ const Tareas = ({ tasks, setListSelected, listSelected, fetchData }) => {
   };
   return(
     <>
-      { isMobile() && (
+      { mobile && (
         <PageHeader
           title='Mis Tareas'
           onBack={() => setListSelected({ key: null})}
@@ -126,6 +127,7 @@ const Tareas = ({ tasks, setListSelected, listSelected, fetchData }) => {
           </Droppable>
         </DragDropContext>
       </div>
+      <ListenerMobile onChange={setMobile} />
     </>
   );
 };
