@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Avatar, Image, Result } from 'antd';
+import { Avatar, Image, Result, Popover } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 
-import { isMobile }  from '../helpers/helpers';
 import { getListas, getNotesByList } from '../helpers/api-helpers';
 
 import Listas from './Listas';
 import Tareas from './Tareas';
+import ListenerMobile from './ListenerMobile';
 
 const Container = () => {
+  const [ mobile, setMobile ] = useState(false);
   const [ listSelected, setListSelected ] = useState({ key: null});
   const [ listas, setListas ] = useState([ ]);
   const [ tasks, setTasks ] = useState({});
@@ -35,13 +36,27 @@ const Container = () => {
           <MenuOutlined />
         </div>
         <div className='Margin'>
-          {localStorage.getItem('username') || ''}
-          <Avatar src={<Image src='https://joeschmoe.io/api/v1/random' style={{ width: 32 }} />} />
+        <Popover
+          content={<a onClick={() => {
+            window.location = window.location.protocol + '//' + window.location.host + '/login';
+            localStorage.removeItem('token');
+            localStorage.removeItem('id_user');
+            localStorage.removeItem('username');
+          }
+          }>Cerrar sesión</a>}
+          title='Usuario'
+          trigger='hover'
+        >
+          <div className='UserInfo'>
+            {localStorage.getItem('username') || ''}
+            <Avatar src={<Image src='https://joeschmoe.io/api/v1/random' style={{ width: 32 }} />} />
+          </div>
+        </Popover>
         </div>
       </div>
       <div className='DataContainer'>
         {
-          isMobile() ? (
+          mobile ? (
             <>
             {
               listSelected.key ? (
@@ -72,6 +87,7 @@ const Container = () => {
           )
         }
       </div>
+      <ListenerMobile onChange={setMobile} />
     </>
   );
 };
